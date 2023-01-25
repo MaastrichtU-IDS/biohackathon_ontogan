@@ -1,5 +1,5 @@
 # Onto-GAN - Biohackathon Mena 2023
-This repository is a workplace for Team Onto-GAN in Bio-Hackathon-Mena 2023 in KAUST (7-11 Feb 2023). Planning, documentation, code, materials, and others related to the biohackathon will be shared here. The repo is private for now but will be public after consenting all team members and bio-hackathon organizers. 
+This repository is a workplace for Team Onto-GAN in [Bio-Hackathon-Mena 2023](https://cbrcconferences.kaust.edu.sa/bio-hackathon-2023) in KAUST (7-11 Feb 2023). Planning, documentation, code, materials, and others related to the biohackathon will be shared here. The repo is private for now but will be public after consenting all team members and bio-hackathon organizers. 
 
 ### Team: 
 [Chang Sun](https://www.linkedin.com/in/chang-sun-maastricht/), [Azza Altghafi](https://www.linkedin.com/in/azza-althagafi-b767aa144/), [Tilman Hinnerichs](https://tilman.hinnerichs.com/), [Maxat Kulmanov](https://www.linkedin.com/in/coolmaksat/?originalSubdomain=sa), [Núria Queralt Rosinach](https://www.linkedin.com/in/nqueralt/), [Michel Dumontier](https://www.linkedin.com/in/dumontier/). 
