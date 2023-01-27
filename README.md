@@ -27,6 +27,7 @@ This planning is based on the meeting we had on 17th Jan 2023. Meeting note is a
 - 9th and 10th Feb
   - Experiment 1: Input one ontology embeddings to GAN framework (tune hyperparameters for GAN)
   - Evaluate the quality of synthetic data (from Exp_1) based on our evaluation strategy
+  - Discuss how to make available the outcomes (such as library, notebook, docker) for the community
   
 - 10th Feb
   - Experiment 2: Input two (and three) ontology embeddings to GAN framework 
@@ -36,6 +37,7 @@ This planning is based on the meeting we had on 17th Jan 2023. Meeting note is a
   
 - 11th Feb (Celebrate achievement and look forward)
   - Finalize the experiments and summarize the results
+  - Make the outcome public for the MENA community
   - Discuss the results, conclude the findings, and present the work to other groups
   - Wrap up and plan for the next step (collaboration and publications)
 
