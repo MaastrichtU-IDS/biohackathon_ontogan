@@ -80,13 +80,9 @@ This planning is based on the meeting we had on 17th Jan 2023. Meeting note is a
 
 - Zero-shot learning
 
-### Refereces
+### References
 DATGAN: INTEGRATING EXPERT KNOWLEDGE INTO DEEP
 LEARNING FOR SYNTHETIC TABULAR DATA
 - [DATGAN: Integrating Expert Knowledge Into Depp Learning For Synthetic Tabular Data](https://arxiv.org/pdf/2203.03489.pdf)
 - [OntoZSL: Ontology-enhanced Zero-shot Learning](https://dl.acm.org/doi/10.1145/3442381.3450042)
-
-  
-
-
 
