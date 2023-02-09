@@ -13,20 +13,20 @@ import pkg_resources
 # The main changes are in ctgan/synthesizers/ctgan.py ../data_sampler.py ../data_transformer.py
 __author__ = 'Chang Sun'
 __email__ = 'chang.sun@maastrichtuniversity.nl'
-__version__ = pkg_resources.get_distribution('dp_cgans').version
+__version__ = pkg_resources.get_distribution('onto_cgan').version
 
 
-from dp_cgans import constraints, metadata
-from dp_cgans.metadata import Metadata, Table
-from dp_cgans.dp_cgan_init import DP_CGAN
-from dp_cgans.synthesizers.dp_cgan import DPCGANSynthesizer
+from onto_cgan import constraints, metadata
+from onto_cgan.metadata import Metadata, Table
+from onto_cgan.dp_cgan_init import DP_CGAN
+from onto_cgan.synthesizers.dp_cgan import DPCGANSynthesizer
 
 __all__ = (
     'constraints',
     'metadata',
     'Metadata',
     'Table',
-    'DP_CGAN',
+    'CGAN',
     'RDF_to_Tabular',
     'DPCGANSynthesizer'
 )

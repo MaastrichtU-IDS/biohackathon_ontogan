@@ -8,8 +8,8 @@ from warnings import warn
 import numpy as np
 import pandas as pd
 
-from dp_cgans.errors import ConstraintsNotMetError
-from dp_cgans.metadata import Table
+from onto_cgan.errors import ConstraintsNotMetError
+from onto_cgan.metadata import Table
 
 LOGGER = logging.getLogger(__name__)
 COND_IDX = str(uuid.uuid4())

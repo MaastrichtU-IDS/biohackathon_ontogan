@@ -1,4 +1,4 @@
-from dp_cgans.synthesizers.dp_cgan import DPCGANSynthesizer
+from onto_cgan.synthesizers.dp_cgan import DPCGANSynthesizer
 
 __all__ = (
     'DPCGANSynthesizer'
