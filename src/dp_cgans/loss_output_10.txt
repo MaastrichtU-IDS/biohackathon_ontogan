@@ -1,0 +1,10 @@
+14:31:04 Epoch 1, Loss G:  0.8553,Loss D:  0.0193
+14:31:23 Epoch 2, Loss G:  0.8638,Loss D:  0.0028
+14:31:40 Epoch 3, Loss G:  0.8609,Loss D: -0.0256
+14:31:56 Epoch 4, Loss G:  0.8605,Loss D: -0.0200
+14:32:09 Epoch 5, Loss G:  0.8379,Loss D: -0.0445
+14:32:25 Epoch 6, Loss G:  0.8343,Loss D: -0.0495
+14:32:40 Epoch 7, Loss G:  0.8151,Loss D: -0.0329
+14:32:56 Epoch 8, Loss G:  0.8048,Loss D: -0.0685
+14:33:11 Epoch 9, Loss G:  0.8062,Loss D: -0.1004
+14:33:28 Epoch 10, Loss G:  0.7882,Loss D: -0.0856
