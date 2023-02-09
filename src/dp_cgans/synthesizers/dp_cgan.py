@@ -18,10 +18,10 @@ from dp_cgans.synthesizers.base import BaseSynthesizer
 
 import scipy.stats
 
-######## ADDED ########
 from datetime import datetime
 from contextlib import redirect_stdout
 from dp_cgans.rdp_accountant import compute_rdp, get_privacy_spent
+
 
 class Discriminator(Module):
 
@@ -351,28 +351,20 @@ class DPCGANSynthesizer(BaseSynthesizer):
             raise ValueError('Invalid columns found: {}'.format(invalid_columns))
 
 
-    ############ Tensorflow Privacy Measurement ##############
-
-    def fit(self, train_data, discrete_columns=tuple(), epochs=None):
+    def fit(self, train_data, label_emb, discrete_columns=tuple(), epochs=None):
         """Fit the CTGAN Synthesizer models to the training data.
 
         Args:
-            train_data (numpy.ndarray or pandas.DataFrame):
-                Training Data. It must be a 2-dimensional numpy array or a pandas.DataFrame.
+            train_data (torch.Tensor):
+                Training Data. It must be a 2-dimensional torch.Tensor
             discrete_columns (list-like):
                 List of discrete columns to be used to generate the Conditional
                 Vector. If ``train_data`` is a Numpy array, this list should
                 contain the integer indices of the columns. Otherwise, if it is
                 a ``pandas.DataFrame``, this list should contain the column names.
+
+                @TODO implement the above disambiguation for torch.Tensor
         """
-
-
-        # if self.conditional_columns != None:
-        #     if set(self.conditional_columns) <= set(discrete_columns):
-        #         discrete_columns = self.conditional_columns
-        #     else:
-        #         raise NotImplementedError("Conditional columns are not in the valid columns.",discrete_columns)
-
 
         self._validate_discrete_columns(train_data, discrete_columns)
 
@@ -398,7 +390,7 @@ class DPCGANSynthesizer(BaseSynthesizer):
         data_dim = self._transformer.output_dimensions
 
         self._generator = Generator(
-            self._embedding_dim + self._data_sampler.dim_cond_vec(), # number of categories in the whole dataset.
+            self._embedding_dim + self._data_sampler.dim_cond_vec() + label_emb.size(1) # number of categories in the whole dataset + conditional vectors
             self._generator_dim,
             data_dim
         ).to(self._device)
@@ -410,23 +402,23 @@ class DPCGANSynthesizer(BaseSynthesizer):
         ).to(self._device)
 
         optimizerG = optim.Adam(
-            self._generator.parameters(), lr=self._generator_lr, betas=(0.5, 0.9),
+            self._generator.parameters(), lr=self._generator_lr, 
+            betas=(0.5, 0.9),
             weight_decay=self._generator_decay
         )
 
         optimizerD = optim.Adam(
             self._discriminator.parameters(), lr=self._discriminator_lr,
-            betas=(0.5, 0.9), weight_decay=self._discriminator_decay
+            betas=(0.5, 0.9), 
+            weight_decay=self._discriminator_decay
         )
 
         mean = torch.zeros(self._batch_size, self._embedding_dim, device=self._device)
         std = mean + 1
 
         steps_per_epoch = max(len(train_data) // self._batch_size, 1)
-        ######## ADDED ########
         with open('loss_output_%s.txt'%str(epochs), 'w') as f:
             with redirect_stdout(f):
-                ######## ADDED ########
                 for i in range(epochs):
                     for id_ in range(steps_per_epoch):
 
@@ -437,21 +429,6 @@ class DPCGANSynthesizer(BaseSynthesizer):
                             
                             condvec_pair = self._data_sampler.sample_condvec_pair(self._batch_size)
                             c_pair_1, m_pair_1, col_pair_1, opt_pair_1 = condvec_pair
-
-                            # if condvec is None:
-                            #     c1, m1, col, opt = None, None, None, None
-                            #     real = self._data_sampler.sample_data(self._batch_size, col, opt)
-                            # else:
-                            #     c1, m1, col, opt = condvec
-                            #     c1 = torch.from_numpy(c1).to(self._device)
-                            #     m1 = torch.from_numpy(m1).to(self._device)
-                            #     fakez = torch.cat([fakez, c1], dim=1)
-
-                            #     perm = np.arange(self._batch_size)
-                            #     np.random.shuffle(perm)
-                            #     real = self._data_sampler.sample_data(
-                            #         self._batch_size, col[perm], opt[perm])
-                            #     c2 = c1[perm]
 
                             if condvec_pair is None:
                                 c_pair_1, m_pair_1, col_pair_1, opt_pair_1 = None, None, None, None
@@ -467,6 +444,9 @@ class DPCGANSynthesizer(BaseSynthesizer):
             
                                 real = self._data_sampler.sample_data_pair(self._batch_size, col_pair_1[perm], opt_pair_1[perm])
                                 c_pair_2 = c_pair_1[perm]
+
+                            sampled_label_emb = label_emb[torch.randint(label_emb.size(0), self._batch_size)]
+                            fakez = torch.cat([fakez, sampled_label_emb], dim=1)  # Append vectors to be conditioned on to input features
 
 
                             fake = self._generator(fakez) # categories (unique value count) + continuous (1+n_components)
@@ -521,16 +501,6 @@ class DPCGANSynthesizer(BaseSynthesizer):
                         fakez = torch.normal(mean=mean, std=std)
                         condvec_pair = self._data_sampler.sample_condvec_pair(self._batch_size)
 
-                        # if condvec is None:
-                        #     c1, m1, col, opt = None, None, None, None
-                        # else:
-                        #     c1, m1, col, opt = condvec
-          
-                        #     c1 = torch.from_numpy(c1).to(self._device)
-                        #     m1 = torch.from_numpy(m1).to(self._device)
-                        #     fakez = torch.cat([fakez, c1], dim=1)
-
-
                         if condvec_pair is None:
                             c_pair_1, m_pair_1, col_pair_1, opt_pair_1 = None, None, None, None
                         else:
@@ -539,22 +509,13 @@ class DPCGANSynthesizer(BaseSynthesizer):
                             c_pair_1 = torch.from_numpy(c_pair_1).to(self._device)
                             m_pair_1 = torch.from_numpy(m_pair_1).to(self._device)
                             fakez = torch.cat([fakez, c_pair_1], dim=1)
+
+                        sampled_label_emb = label_emb[torch.randint(label_emb.size(0), self._batch_size)]
+                        fakez = torch.cat([fakez, sampled_label_emb], dim=1)  # Append vectors to be conditioned on to input features
             
 
                         fake = self._generator(fakez)
                         fakeact = self._apply_activate(fake)
-
-                        # if c1 is not None:
-                        #     y_fake = discriminator(torch.cat([fakeact, c1], dim=1))
-                        # else:
-                        #     y_fake = discriminator(fakeact)
-
-                        # if condvec is None:
-                        #     cross_entropy = 0
-                        # else:
-                        #     cross_entropy = self._cond_loss(fake, c1, m1)
-
-                        # loss_g = -torch.mean(y_fake) + cross_entropy# + rules_penalty
 
                         if c_pair_1 is not None:
                             y_fake = self._discriminator(torch.cat([fakeact, c_pair_1], dim=1))
@@ -608,9 +569,6 @@ class DPCGANSynthesizer(BaseSynthesizer):
                             epsilon = np.nan
 
                         
-                    ######## ADDED ########
-                    
-
     def sample(self, n, condition_column=None, condition_value=None):
         """Sample data similar to the training data.
 
