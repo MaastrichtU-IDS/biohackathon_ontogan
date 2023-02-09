@@ -6,7 +6,7 @@ from dp_cgans.synthesizers.dp_cgan import DPCGANSynthesizer
 from dp_cgans.base import BaseTabularModel
 
 
-class DPCGANModel(BaseTabularModel):
+class CGANModel(BaseTabularModel):
     """Base class for all the CTGAN models.
 
     The ``CTGANModel`` class provides a wrapper for all the CTGAN models.
@@ -22,14 +22,18 @@ class DPCGANModel(BaseTabularModel):
     def _build_model(self):
         return self._MODEL_CLASS(**self._model_kwargs)
 
-    def _fit(self, table_data):
+    def _fit(self, table_data, label_emb):
         """Fit the model to the table.
 
         Args:
             table_data (pandas.DataFrame):
                 Data to be learned.
+            conditional_tensors (torch.Tensor):
+                Data to be conditioned on; same number of rows as table_data
         """
         self._model = self._build_model()
+
+        assert table_data.shape[0] == int(label_emb.size(0))
 
         categoricals = []
         fields_before_transform = self._metadata.get_fields()
@@ -58,6 +62,7 @@ class DPCGANModel(BaseTabularModel):
 
         self._model.fit(
             table_data,
+            label_emb,
             discrete_columns=categoricals
         )
 
@@ -77,6 +82,7 @@ class DPCGANModel(BaseTabularModel):
                 Sampled data.
         """
         if conditions is None:
+            raise NotImplementedError("Sample cannot sample arbitrary rows from the conditional tensors for now.")
             return self._model.sample(num_rows)
 
         raise NotImplementedError(f"{self._MODEL_CLASS} doesn't support conditional sampling.")
@@ -87,7 +93,7 @@ class DPCGANModel(BaseTabularModel):
         return self._model.xai_discriminator(data_samples)
 
 
-class DP_CGAN(DPCGANModel):
+class CGAN(CGANModel):
     """Model wrapping ``CTGANSynthesizer`` model.
 
     Args:
