@@ -390,7 +390,7 @@ class DPCGANSynthesizer(BaseSynthesizer):
         data_dim = self._transformer.output_dimensions
 
         self._generator = Generator(
-            self._embedding_dim + self._data_sampler.dim_cond_vec() + label_emb.size(1) # number of categories in the whole dataset + conditional vectors
+            self._embedding_dim + self._data_sampler.dim_cond_vec() + label_emb.size(1), # number of categories in the whole dataset + conditional vectors
             self._generator_dim,
             data_dim
         ).to(self._device)
