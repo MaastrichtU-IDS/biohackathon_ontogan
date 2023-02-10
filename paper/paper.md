@@ -85,6 +85,14 @@ We recommend to include some discussion or conclusion about your work. Feel free
 - investigate the impact of loss functions on the quality of the data
 - as the approach is universally applicable, we may explore embedding methods of axioms beyond first-order logic such as temporal or modal logic to construct generative models for prescription or predict mortality
 
+## Questions
+
+- Evaluation:
+    - What are the strengths and weaknesses of "relatedness" w.r.t. the ontology for the generation?
+        - leave out and predicting an entire branch vs. predicting on some left out siblings
+- How to deal with the patients with multiple disease? (affect embeddings) 
+    - Maybe we can do it on an axiomatic level?
+
 # Jupyter notebooks, GitHub repositories and data repositories
 
 * Please add a list here
