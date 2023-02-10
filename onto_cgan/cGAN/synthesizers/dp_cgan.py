@@ -11,6 +11,7 @@ import torch
 from packaging import version
 from torch import optim
 from torch.nn import BatchNorm1d, Dropout, LeakyReLU, Linear, Module, ReLU, Sequential, functional, BCEWithLogitsLoss, utils
+import torch.nn as nn
 
 from onto_cgan.cGAN.data_sampler import DataSampler
 from onto_cgan.cGAN.data_transformer import DataTransformer
@@ -25,7 +26,7 @@ from onto_cgan.cGAN.rdp_accountant import compute_rdp, get_privacy_spent
 
 class Discriminator(Module):
 
-    def __init__(self, input_dim, discriminator_dim, pac=10):
+    def __init__(self, input_dim, discriminator_dim, regr_dim=0, pac=10):
         super(Discriminator, self).__init__()
         dim = input_dim * pac
         self.pac = pac
@@ -35,8 +36,11 @@ class Discriminator(Module):
             seq += [Linear(dim, item), LeakyReLU(0.2), Dropout(0.5)]
             dim = item
 
-        seq += [Linear(dim, 1)]
         self.seq = Sequential(*seq)
+        self.rf_lin = [Linear(dim, 1)]
+        self.regr_dim = regr_dim
+        if self.regr_dim !=0:
+            self.regr_lin = [Linear(dim, self.regr_dim)]
 
     def calc_gradient_penalty(self, real_data, fake_data, device='cpu', pac=10, lambda_=10):
         alpha = torch.rand(real_data.size(0) // pac, 1, 1, device=device)
@@ -46,6 +50,8 @@ class Discriminator(Module):
         interpolates = alpha * real_data + ((1 - alpha) * fake_data)
 
         disc_interpolates = self(interpolates)
+        if isinstance(disc_interpolates, tuple):
+            disc_interpolates = disc_interpolates[0]
 
         gradients = torch.autograd.grad(
             outputs=disc_interpolates, inputs=interpolates,
@@ -61,7 +67,8 @@ class Discriminator(Module):
 
     def forward(self, input):
         assert input.size()[0] % self.pac == 0
-        return self.seq(input.view(-1, self.pacdim))
+        x = self.seq(input.view(-1, self.pacdim))
+        return self.rf_lin(x), self.regr_lin(x)
 
 
 class Residual(Module):
@@ -94,6 +101,7 @@ class Generator(Module):
     def forward(self, input):
         data = self.seq(input)
         return data
+
 
 
 class DPCGANSynthesizer(BaseSynthesizer):
@@ -351,7 +359,7 @@ class DPCGANSynthesizer(BaseSynthesizer):
             raise ValueError('Invalid columns found: {}'.format(invalid_columns))
 
 
-    def fit(self, train_data, label_emb, discrete_columns=tuple(), epochs=None):
+    def fit(self, train_data, label_emb, discrete_columns=tuple(), loss_alpha=0.5 epochs=None):
         """Fit the CTGAN Synthesizer models to the training data.
 
         Args:
@@ -398,6 +406,7 @@ class DPCGANSynthesizer(BaseSynthesizer):
         self._discriminator = Discriminator(
             data_dim + self._data_sampler.dim_cond_vec(),
             self._discriminator_dim,
+            regr_dim=label_emb.size(1), # set to 0 to omit regression 
             pac=self.pac
         ).to(self._device)
 
@@ -446,8 +455,7 @@ class DPCGANSynthesizer(BaseSynthesizer):
                                 c_pair_2 = c_pair_1[perm]
 
                             sampled_label_emb = label_emb[torch.randint(0, label_emb.size(0), (self._batch_size,))]
-                            fakez = torch.cat([fakez, sampled_label_emb], dim=1)  # Append vectors to be conditioned on to input features
-
+                            fakez = torch.cat([fakez, sampled_label_emb], dim=1)  # Append vectors to be conditioned on label embeddings
 
                             fake = self._generator(fakez) # categories (unique value count) + continuous (1+n_components)
                             fakeact = self._apply_activate(fake)
@@ -464,11 +472,17 @@ class DPCGANSynthesizer(BaseSynthesizer):
                                 real_cat = real
                                 fake_cat = fake
 
-                            y_fake = self._discriminator(fake_cat)
-                            y_real = self._discriminator(real_cat)
+                            y_fake, regr_fake = self._discriminator(fake_cat)
+                            y_real, regr_real = self._discriminator(real_cat)
 
-                            loss_d = -(torch.mean(y_real) - torch.mean(y_fake))
+                            cos = nn.CosineSimilarity(dim=1, eps=1e-6)
+                            fake_regr_loss = (1 - cos(regr_fake, sampled_label_emb))/2
+                            real_regr_loss = (1 - cos(regr_real, sampled_label_emb))/2
 
+                            # 1: fake, 0: real
+                            rf_loss_d = -(torch.mean(y_real) - torch.mean(y_fake))
+                            regr_loss_d = (torch.mean(fake_regr_loss) + torch.mean(real_regr_loss))/2
+                            loss_d = loss_alpha * rf_loss_d + (1-loss_alpha) * regr_loss_d
      
                             #### DP ####
                             if self.private:
@@ -513,23 +527,24 @@ class DPCGANSynthesizer(BaseSynthesizer):
                         sampled_label_emb = label_emb[torch.randint(0, label_emb.size(0), (self._batch_size,))]
                         fakez = torch.cat([fakez, sampled_label_emb], dim=1)  # Append vectors to be conditioned on to input features
             
-
                         fake = self._generator(fakez)
                         fakeact = self._apply_activate(fake)
 
                         if c_pair_1 is not None:
-                            y_fake = self._discriminator(torch.cat([fakeact, c_pair_1], dim=1))
+                            y_fake, regr_fake = self._discriminator(torch.cat([fakeact, c_pair_1], dim=1))
                         else:
-                            y_fake = self._discriminator(fakeact)
+                            y_fake, regr_fake = self._discriminator(fakeact)
 
                         if condvec_pair is None:
                             cross_entropy_pair = 0
                         else:
                             cross_entropy_pair = self._cond_loss_pair(fake, c_pair_1, m_pair_1)
-
-
-                        loss_g = -torch.mean(y_fake) + cross_entropy_pair # + rules_penalty
                         
+                        # 1: fake, 0: real
+                        rf_loss_g = -torch.mean(y_fake) + cross_entropy_pair # + rules_penalty
+                        regr_loss_g = (1 + cos(regr_fake, sampled_label_emb))/2
+
+                        loss_g = loss_alpha * rf_loss_g + (1-loss_alpha) * regr_loss_g
 
                         optimizerG.zero_grad()
                         loss_g.backward()
