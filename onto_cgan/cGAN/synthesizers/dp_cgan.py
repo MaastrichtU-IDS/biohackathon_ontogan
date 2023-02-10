@@ -600,7 +600,10 @@ class DPCGANSynthesizer(BaseSynthesizer):
 
         data = []
         for i in range(steps):
-            mean = torch.zeros(self._batch_size, self._embedding_dim)
+            batched_ind = label_ind[i * self._batch_size:(i+1)*self._batch_size]
+            batched_label_emb = label_emb[batched_ind,:]
+
+            mean = torch.zeros(batched_ind.size(0), self._embedding_dim)
             std = mean + 1
             fakez = torch.normal(mean=mean, std=std).to(self._device)
 
@@ -614,10 +617,8 @@ class DPCGANSynthesizer(BaseSynthesizer):
             else:
                 c1 = condvec
                 c1 = torch.from_numpy(c1).to(self._device)
-                fakez = torch.cat([fakez, c1], dim=1)
+                fakez = torch.cat([fakez, c1[:batched_ind.size(0)]], dim=1)
             
-            batched_ind = label_ind[i * self._batch_size:(i+1)*self._batch_size]
-            batched_label_emb = label_emb[batched_ind,:]
             fakez = torch.cat([fakez, batched_label_emb], dim=1)  # Append vectors to be conditioned on to input features
 
             fake = self._generator(fakez)

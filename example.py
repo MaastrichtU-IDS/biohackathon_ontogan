@@ -41,7 +41,7 @@ model.fit(tabular_data, omim_embeddings)
 model.save("generator.pkl")
 
 print("we done")
-syn_data = model.sample(omim_embeddings, n=5)
+syn_data = model.sample(omim_embeddings, 5)
 
 syn_data.to_csv("syn_data_file.csv")
 print("we done done")
