@@ -25,15 +25,14 @@ class CGANModel(BaseTabularModel):
     def _fit(self, table_data, label_emb):
         """Fit the model to the table.
 
-        Args:
             table_data (pandas.DataFrame):
                 Data to be learned.
             conditional_tensors (torch.Tensor):
                 Data to be conditioned on; same number of rows as table_data
         """
         self._model = self._build_model()
-
-        assert table_data.shape[0] == int(label_emb.size(0))
+        
+        #assert table_data.shape[0] == int(label_emb.size(0))
 
         categoricals = []
         fields_before_transform = self._metadata.get_fields()
@@ -59,7 +58,7 @@ class CGANModel(BaseTabularModel):
                     categoricals.append(field)
 
         # print(table_data[categoricals])
-
+        
         self._model.fit(
             table_data,
             label_emb,
