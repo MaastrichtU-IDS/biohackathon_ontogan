@@ -82,6 +82,7 @@ class CGANModel(BaseTabularModel):
         """
         if conditions is None:
 #            raise NotImplementedError("Sample cannot sample arbitrary rows from the conditional tensors for now.")
+
             return self._model.sample(label_emb, num_rows)
 
         raise NotImplementedError(f"{self._MODEL_CLASS} doesn't support conditional sampling.")
