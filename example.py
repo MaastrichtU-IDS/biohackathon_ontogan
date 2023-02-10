@@ -20,11 +20,13 @@ for i in embedddings.wv.key_to_index.keys():
 data = omim_embeddings.items()
 dataMatrix = np.array([omim_embeddings[i] for i in omim_embeddings])
 omim_embeddings = torch.from_numpy(dataMatrix)
+print(len(omim_embeddings))
 
 # We adjusted the original CTGAN model from SDV. Instead of looking at the distribution of individual variable, we extended to two variables and keep their corrll
+
 model = CGAN(
-   epochs=10, # number of training epochs
-   batch_size=1000, # the size of each batch
+   epochs=10, ### number of training epochs
+   batch_size=1000, ### the size of each batch
    log_frequency=True,
    verbose=True,
    generator_dim=(128, 128, 128),
@@ -39,7 +41,7 @@ model.fit(tabular_data, omim_embeddings)
 model.save("generator.pkl")
 
 print("we done")
-# Generate 100 synthetic rows
-syn_data = model.sample(100)
+### Generate 100 synthetic rows
+syn_data = model.sample(omim_embeddings, 2)
 syn_data.to_csv("syn_data_file.csv")
 print("we done done")

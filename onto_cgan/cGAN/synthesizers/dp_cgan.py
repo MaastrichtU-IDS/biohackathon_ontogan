@@ -569,7 +569,7 @@ class DPCGANSynthesizer(BaseSynthesizer):
                             epsilon = np.nan
 
                         
-    def sample(self, n, condition_column=None, condition_value=None):
+    def sample(self, label_emb, n, condition_column=None, condition_value=None):
         """Sample data similar to the training data.
 
         Choosing a condition_column and condition_value will increase the probability of the
@@ -593,6 +593,9 @@ class DPCGANSynthesizer(BaseSynthesizer):
         else:
             global_condition_vec = None
 
+        print(label_emb)
+        print(n)
+
         steps = n // self._batch_size + 1
         data = []
         for i in range(steps):
@@ -611,6 +614,9 @@ class DPCGANSynthesizer(BaseSynthesizer):
                 c1 = condvec
                 c1 = torch.from_numpy(c1).to(self._device)
                 fakez = torch.cat([fakez, c1], dim=1)
+
+            ### Chang 2023 Feb 10 Change
+            fakez = torch.cat([fakez, label_emb], dim=1)
 
             fake = self._generator(fakez)
             fakeact = self._apply_activate(fake)
