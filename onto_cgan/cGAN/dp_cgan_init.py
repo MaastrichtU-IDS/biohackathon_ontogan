@@ -1,9 +1,9 @@
 """Wrapper around CTGAN model."""
 
 import numpy as np
-from onto_cgan.synthesizers.dp_cgan import DPCGANSynthesizer
+from onto_cgan.cGAN.synthesizers.dp_cgan import DPCGANSynthesizer
 
-from onto_cgan.base import BaseTabularModel
+from onto_cgan.cGAN.base import BaseTabularModel
 
 
 class CGANModel(BaseTabularModel):

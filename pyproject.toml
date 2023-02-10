@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "onto-cgan"
+version = "0.1.0"
+description = ""
+authors = ["Tilman Hinnerichs <tilman@hinnerichs.com>"]
+readme = "README.md"
+packages = [{include = "onto_CGAN"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

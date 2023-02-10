@@ -1,14 +1,14 @@
-from dp_cgans import DP_CGAN
+from onto_cgan.cGAN import CGAN
 import pandas as pd
+from gensim import Word2vec
 from gensim.models import Word2Vec
 
 ex = 'test.csv'
-word2vec_file= '../../../opa2vec.model'
+word2vec_file= '../../../../owl2vec.model'
 
 tabular_data = pd.read_csv(ex) #"resources/example_tabular_data_UCIAdult.csv")
 
 embedddings = Word2Vec.load(word2vec_file)
-embedddings = embedddings.wv
 
 # We adjusted the original CTGAN model from SDV. Instead of looking at the distribution of individual variable, we extended to two variables and keep their corrll
 model = DP_CGAN(

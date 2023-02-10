@@ -31,7 +31,6 @@ class DataTransformer(object):
         self._max_clusters = max_clusters
         self._weight_threshold = weight_threshold
 
-    ###### Modified by Chang ######
     def _fit_continuous(self, column_name, raw_column_data):
         """Train Bayesian GMM for continuous column."""
         gm = BayesianGaussianMixture(

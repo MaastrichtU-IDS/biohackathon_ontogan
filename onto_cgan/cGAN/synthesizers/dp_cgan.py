@@ -12,15 +12,15 @@ from packaging import version
 from torch import optim
 from torch.nn import BatchNorm1d, Dropout, LeakyReLU, Linear, Module, ReLU, Sequential, functional, BCEWithLogitsLoss, utils
 
-from onto_cgan.data_sampler import DataSampler
-from onto_cgan.data_transformer import DataTransformer
-from onto_cgan.synthesizers.base import BaseSynthesizer
+from onto_cgan.cGAN.data_sampler import DataSampler
+from onto_cgan.cGAN.data_transformer import DataTransformer
+from onto_cgan.cGAN.synthesizers.base import BaseSynthesizer
 
 import scipy.stats
 
 from datetime import datetime
 from contextlib import redirect_stdout
-from onto_cgan.rdp_accountant import compute_rdp, get_privacy_spent
+from onto_cgan.cGAN.rdp_accountant import compute_rdp, get_privacy_spent
 
 
 class Discriminator(Module):

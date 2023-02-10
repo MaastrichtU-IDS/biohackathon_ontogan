@@ -1,5 +1,4 @@
 import numpy as np
-### Chang ###
 from functools import reduce
 
 
@@ -89,7 +88,6 @@ class DataSampler(object):
         #     [column_info[0].dim for column_info in output_info
         #      if is_discrete_column(column_info)], default=0)
        
-        ### Modified by Chang###        
         self.get_position=[]
         position_cnt = 0
         self._categories_each_column = []
@@ -109,7 +107,6 @@ class DataSampler(object):
         #     [column_info[0].dim for column_info in output_info
         #      if is_discrete_column(column_info)]) 
              
-        ### Modified by Chang###        
 
         
         self.get_position = np.array(self.get_position)
@@ -148,7 +145,6 @@ class DataSampler(object):
                 st += sum([span_info.dim for span_info in column_info])
 
         
-        ### Modified by Chang###
         st_primary = 0
         
         current_id_pair = 0
