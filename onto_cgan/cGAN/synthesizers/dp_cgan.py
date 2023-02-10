@@ -445,7 +445,7 @@ class DPCGANSynthesizer(BaseSynthesizer):
                                 real = self._data_sampler.sample_data_pair(self._batch_size, col_pair_1[perm], opt_pair_1[perm])
                                 c_pair_2 = c_pair_1[perm]
 
-                            sampled_label_emb = label_emb[torch.randint(label_emb.size(0), self._batch_size)]
+                            sampled_label_emb = label_emb[torch.randint(0, label_emb.size(0), (self._batch_size,))]
                             fakez = torch.cat([fakez, sampled_label_emb], dim=1)  # Append vectors to be conditioned on to input features
 
 
@@ -510,7 +510,7 @@ class DPCGANSynthesizer(BaseSynthesizer):
                             m_pair_1 = torch.from_numpy(m_pair_1).to(self._device)
                             fakez = torch.cat([fakez, c_pair_1], dim=1)
 
-                        sampled_label_emb = label_emb[torch.randint(label_emb.size(0), self._batch_size)]
+                        sampled_label_emb = label_emb[torch.randint(0, label_emb.size(0), (self._batch_size,))]
                         fakez = torch.cat([fakez, sampled_label_emb], dim=1)  # Append vectors to be conditioned on to input features
             
 

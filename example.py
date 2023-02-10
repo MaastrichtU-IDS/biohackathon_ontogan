@@ -1,10 +1,11 @@
 from onto_cgan.cGAN.onto_cgan_init import CGAN
 import pandas as pd
 from gensim.models import Word2Vec
-import numpy as np 
+import numpy as np
+import torch
 
 ex = 'test.csv'
-word2vec_file= '../opa2vec.model'
+word2vec_file= 'opa2vec.model'
 
 tabular_data = pd.read_csv(ex) #"resources/example_tabular_data_UCIAdult.csv")
 
@@ -14,12 +15,11 @@ omim_embeddings = {}
 for i in embedddings.wv.key_to_index.keys():
     if "http://mowl.borg/OMIM_" in i:
         omim_embeddings[i] = embedddings.wv[i]
-        
-        
-print(len(omim_embeddings))
+
+
 data = omim_embeddings.items()
-omim_embeddings = np.array(list(data))
-print(len(omim_embeddings))
+dataMatrix = np.array([omim_embeddings[i] for i in omim_embeddings])
+omim_embeddings = torch.from_numpy(dataMatrix)
 
 # We adjusted the original CTGAN model from SDV. Instead of looking at the distribution of individual variable, we extended to two variables and keep their corrll
 model = CGAN(
@@ -35,9 +35,11 @@ model = CGAN(
    private=False,
 )
 print("Start training model")
-model._fit(tabular_data, omim_embeddings)
+model.fit(tabular_data, omim_embeddings)
 model.save("generator.pkl")
 
+print("we done")
 # Generate 100 synthetic rows
 syn_data = model.sample(100)
 syn_data.to_csv("syn_data_file.csv")
+print("we done done")
