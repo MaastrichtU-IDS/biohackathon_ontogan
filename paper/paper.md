@@ -81,7 +81,9 @@ We recommend to include some discussion or conclusion about your work. Feel free
 # Future work
 
 - Evaluation metrics
+
 - extend to more complicated axioms and axiom spaces
+    - use ELEm for embedding generation
 - investigate the impact of loss functions on the quality of the data
 - as the approach is universally applicable, we may explore embedding methods of axioms beyond first-order logic such as temporal or modal logic to construct generative models for prescription or predict mortality
 
