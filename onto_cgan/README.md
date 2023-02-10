@@ -7,3 +7,10 @@
 2. Parse and pre-process MIMIC-III dataset
 3. Build and train CGAN conditioned on axiom and concept embeddings based on MIMIC-III
 
+## Dataset:
+1. MIMIC-III: 
+2. Preprocessing: we extract patient data including their demongraphic data, diagnoses data, and lab measurement data. 
+	2.1 Demongraphic data:	GENDER, ETHNICITY, MARITAL_STATUS, AGE(calculated), ADMIT_AGE(calculated), ADMITTIME
+	2.2 Diagnoses: ICD_9 CODE (HOW MANY DISEASES?)
+	2.3 Lab measurements: ... (need to update)
+3. 
