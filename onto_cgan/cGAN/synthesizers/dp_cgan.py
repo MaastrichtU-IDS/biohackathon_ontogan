@@ -569,7 +569,7 @@ class DPCGANSynthesizer(BaseSynthesizer):
                             epsilon = np.nan
 
                         
-    def sample(self, n, condition_column=None, condition_value=None):
+    def sample(self, label_emb, n, condition_column=None, condition_value=None):
         """Sample data similar to the training data.
 
         Choosing a condition_column and condition_value will increase the probability of the
@@ -585,6 +585,7 @@ class DPCGANSynthesizer(BaseSynthesizer):
         Returns:
             numpy.ndarray or pandas.DataFrame
         """
+        n_total = n * label_emb.size(0)
         if condition_column is not None and condition_value is not None:
             condition_info = self._transformer.convert_column_name_value_to_id(
                 condition_column, condition_value)
@@ -593,7 +594,8 @@ class DPCGANSynthesizer(BaseSynthesizer):
         else:
             global_condition_vec = None
 
-        steps = n // self._batch_size + 1
+        steps = n_total // self._batch_size + 1
+        label_ind = torch.arange(label_emb.size(0)).repeat_interleave(n)
         data = []
         for i in range(steps):
             mean = torch.zeros(self._batch_size, self._embedding_dim)
@@ -611,6 +613,10 @@ class DPCGANSynthesizer(BaseSynthesizer):
                 c1 = condvec
                 c1 = torch.from_numpy(c1).to(self._device)
                 fakez = torch.cat([fakez, c1], dim=1)
+            
+            batched_ind = label_ind[i * self._batch_size:(i+1)*self._batch_size]
+            batched_label_emb = label_emb[batched_ind,:]
+            fakez = torch.cat([fakez, batched_label_emb], dim=1)  # Append vectors to be conditioned on to input features
 
             fake = self._generator(fakez)
             fakeact = self._apply_activate(fake)
