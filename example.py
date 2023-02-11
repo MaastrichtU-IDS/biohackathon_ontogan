@@ -3,24 +3,21 @@ import pandas as pd
 from gensim.models import Word2Vec
 import numpy as np
 import torch
-
-ex = 'patient_measurement.csv'
-word2vec_file= 'patients_embeddings.pkl'
-
-tabular_data = pd.read_csv(ex) #"resources/example_tabular_data_UCIAdult.csv")
-
-embedddings = Word2Vec.load(word2vec_file)
-
-omim_embeddings = {}
-for i in embedddings.wv.key_to_index.keys():
-    if "http://mowl.borg/OMIM_" in i:
-        omim_embeddings[i] = embedddings.wv[i]
+import pickle as pkl
 
 
-data = omim_embeddings.items()
-dataMatrix = np.array([omim_embeddings[i] for i in omim_embeddings])
-omim_embeddings = torch.from_numpy(dataMatrix)
-print(len(omim_embeddings))
+tabular_data_file = '../patient_measures.csv'
+tabular_data = pd.read_csv(tabular_data_file) 
+
+
+with open('../patients_embeddings.pkl', 'rb') as f:
+    embeddings = pkl.load(f)
+
+dataMatrix = np.array([embeddings[i] for i in embeddings])
+embeddings = torch.from_numpy(dataMatrix)
+
+print(embeddings.size)
+print(tabular_data.shape)
 
 # We adjusted the original CTGAN model from SDV. Instead of looking at the distribution of individual variable, we extended to two variables and keep their corrll
 
@@ -37,11 +34,11 @@ model = CGAN(
    private=False,
 )
 print("Start training model")
-model.fit(tabular_data, omim_embeddings)
-model.save("generator.pkl")
+model.fit(tabular_data, embeddings)
+model.save("generator_v2.pkl")
 
 print("we done")
-syn_data = model.sample(omim_embeddings, 5)
+syn_data = model.sample(embeddings, 5)
 
-syn_data.to_csv("syn_data_file.csv")
+syn_data.to_csv("syn_data_file_v2.csv")
 print("we done done")
