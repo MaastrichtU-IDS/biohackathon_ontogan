@@ -16,6 +16,8 @@ with open('../patients_embeddings.pkl', 'rb') as f:
 dataMatrix = np.array([embeddings[i] for i in embeddings])
 embeddings = torch.from_numpy(dataMatrix)
 
+print(embeddings.size)
+print(tabular_data.shape)
 
 # We adjusted the original CTGAN model from SDV. Instead of looking at the distribution of individual variable, we extended to two variables and keep their corrll
 

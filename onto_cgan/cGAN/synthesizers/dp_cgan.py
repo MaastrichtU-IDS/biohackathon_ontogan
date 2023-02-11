@@ -359,7 +359,7 @@ class DPCGANSynthesizer(BaseSynthesizer):
             raise ValueError('Invalid columns found: {}'.format(invalid_columns))
 
 
-    def fit(self, train_data, label_emb, discrete_columns=tuple(), loss_alpha=0.5 epochs=None):
+    def fit(self, train_data, label_emb, discrete_columns=tuple(), loss_alpha=0.5 , epochs=None):
         """Fit the CTGAN Synthesizer models to the training data.
 
         Args:
