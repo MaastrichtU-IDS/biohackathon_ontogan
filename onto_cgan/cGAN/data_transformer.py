@@ -38,7 +38,7 @@ class DataTransformer(object):
             covariance_type='full',
             weight_concentration_prior_type='dirichlet_process', #http://ailab.chonbuk.ac.kr/seminar_board/pds1_files/teh_yee_whye_dp_talk.pdf
             weight_concentration_prior=1e-3, 
-            n_init=5 , #10
+            n_init=10 , #10
             max_iter=2000, #1000
             warm_start=True,
             init_params="random",

@@ -4,8 +4,8 @@ from gensim.models import Word2Vec
 import numpy as np
 import torch
 
-ex = 'test.csv'
-word2vec_file= 'opa2vec.model'
+ex = 'patient_measurement.csv'
+word2vec_file= 'patients_embeddings.pkl'
 
 tabular_data = pd.read_csv(ex) #"resources/example_tabular_data_UCIAdult.csv")
 
@@ -26,7 +26,7 @@ print(len(omim_embeddings))
 
 model = CGAN(
    epochs=10, ### number of training epochs
-   batch_size=1000, ### the size of each batch
+   batch_size=2000, ### the size of each batch
    log_frequency=True,
    verbose=True,
    generator_dim=(128, 128, 128),
